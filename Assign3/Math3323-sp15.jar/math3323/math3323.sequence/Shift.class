@@ -1,0 +1,34 @@
+/*
+ * Created on Nov 16, 2005
+ */
+package math3323.sequence;
+
+/**
+ * Sequences of this class are shifts of other sequences.
+ * @author Ben Setzer
+ */
+public final class Shift implements Sequence {
+
+	private Sequence s;
+	private int shift;
+	
+	/*
+	 * The new sequence created satisfies
+	 *     this.get(n) = s.get(n+shift).
+	 * @param s should be non-null
+	 * @param shift  Should be non-negative.  If shift is 0, the new
+	 * 					sequence is the same as the old.
+	 */
+	public Shift(Sequence s, int shift )
+	{
+		this.s = s;
+		this.shift = shift;
+		if( shift < 0 ) 
+			throw new IllegalArgumentException("Constructor for shift requires non-negative shift value");
+	}
+	
+	public long get(long n) {
+		return s.get(n+shift);
+	}
+
+}
