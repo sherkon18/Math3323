@@ -1,0 +1,81 @@
+/*
+ * Created on Sep 28, 2006
+ */
+package math3323.util;
+
+import java.util.Iterator;
+
+/**
+ * An iterator that returns a sequence of strings of the form
+ * 	xxxdddd
+ * Where xxx is supplied prefix
+ * and ddd is a digit sequence 000 ... 999
+ * The prefix and number of digits can be specified.
+ * @author Ben Setzer
+ */
+public final class StringSequence implements Iterator<String> {
+
+	private String prefix;
+	private char digits[];
+	private boolean used;   // true if a value has been returned 
+							// from this generator
+	
+	/**
+	 * 	Create a StringSequence generator
+	 * @param prefix  Prefix on generated strings
+	 * @param numDigits Number of digits in the digits part
+	 */
+	public StringSequence(String prefix, int numDigits)
+	{
+		this.prefix = prefix;
+		digits = new char[numDigits];
+		for(int i = 0; i < digits.length; i++ )
+			digits[i] = '0';
+		used = false;
+	}
+		
+	public boolean hasNext() {
+		int i = 0;
+		while( i < digits.length && digits[i] == '9' )
+			i++;
+		return i < digits.length;
+	}
+
+	public String next() {
+		if( !used ) {
+			used = true;
+		} else {
+			int i = digits.length-1;
+			while( i >= 0 && digits[i] == '9') {
+				digits[i] = '0';
+				i--;
+			}
+			if( i >= 0 )
+				digits[i]++;
+		}
+		String rtval = prefix;
+		for(int i = 0; i < digits.length; i++ ) 
+			rtval += digits[i];
+		return rtval;
+	}
+
+	public void remove() {
+		throw new UnsupportedOperationException("StringSequence does not support remove");
+	}
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		StringSequence ss = new StringSequence("aaa", 3);
+		while( ss.hasNext() ) {
+			System.out.println(ss.next());
+		}
+		ss.next();
+		//while( ss.hasNext() ) {
+		//	System.out.println(ss.next());
+		//}
+
+	}
+
+}
