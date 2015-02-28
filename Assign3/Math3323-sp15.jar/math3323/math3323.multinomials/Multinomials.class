@@ -1,0 +1,84 @@
+/*
+ * Created on Dec 13, 2006
+ */
+package math3323.multinomials;
+
+import java.util.Arrays;
+
+
+/**
+ * Functions to compute the multinomial coefficients.
+ * In general, these are 
+ * multi(a<sub>1</sub>, a<sub>2</sub>, ... a<sub>r</sub>) = 
+ * 		N!/(a<sub>1</sub>! * a<sub>2</sub>! * ... * a<sub>r</sub>!) 
+ * where a<sub>1</sub> + a<sub>2</sub> + .. + a<sub>r</sub> = N 
+ * and all are non-negative integers
+ * @author Ben Setzer
+ */
+public class Multinomials {
+
+	/**
+	 * This class is used only for its static members.
+	 * Therefore, you can't instantiate it.
+	 */
+	private Multinomials() {}
+	
+	/**
+	 * Return The mulitnomial coefficient for the provided arguments.
+	 * This is an alternate version of the computation that might 
+	 * work with larger values of the parameters.
+	 * 
+	 * @param a A list of arguments to the multinomial method.
+	 * 			These should all be non-negative.
+	 * @return The multinomial 
+	 */
+	public static long multinomial2(int ...a) {
+		if(a.length == 1)
+			return 1;
+		else if(a.length == 2) {
+			long rtval = 1;
+			for(int i = 1; i <= a[0]; i++ ) 
+				rtval  = rtval * (a[0]+a[1]+1-i)/i;
+			return rtval;
+		} else {
+			int[] b = Arrays.copyOfRange(a, 1, a.length);
+			long x = multinomial(b);
+			int sum = 0;
+			for(int i = 1; i < a.length; i++ )
+				sum += a[i];
+			long y = multinomial(a[0], sum);
+			return x*y;
+		}
+	}
+	
+
+	/**
+	 * Return The mulitnomial coefficient for the provided arguments.
+	 * 
+	 * @param a A list of arguments to the multinomial method.
+	 * 			These should all be non-negative.
+	 * @return The multinomial 
+	 */
+	public static long multinomial(int ... a) {
+		int sum = 0;
+		for(int x : a) 
+			sum += x;
+		long rtval = factorial(sum);
+		for(int x : a)
+			rtval /= factorial(x);
+		return rtval;
+	}
+
+	/**
+	 * Computes the factorial of the parameter.
+	 * @param n Should be non-negative
+	 * @return The factorial of n
+	 */
+	public static long factorial(int n) {
+		long t = 1;
+		for(int i = 1; i <= n; i++ ) 
+			t *= i;
+		return t;
+	}
+	
+}
