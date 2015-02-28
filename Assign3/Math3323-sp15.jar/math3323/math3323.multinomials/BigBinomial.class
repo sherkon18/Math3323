@@ -1,0 +1,99 @@
+package math3323.multinomials;
+
+import java.math.BigInteger;
+
+import math3323.util.Rational;
+
+
+/**
+ *  This class provides a number of static functions that return binomial coefficients
+ *  and probabilities for binomial experiments.
+ *  This class differs in that it uses BigInteger and Rational to represent the
+ *  results precisely and to any limit allowed by the memory of the system.
+ *  
+ * @author Ben Setzer
+ *
+ */
+public class BigBinomial {
+	
+	/**
+	 * This class provides static methods only, so creating an object is not
+	 * necessary.
+	 *
+	 */
+	private BigBinomial()
+	{
+		
+	}
+
+
+	/**
+	 * Returns the binomial coefficient n over k.
+	 * @param n The number of trials. Should be a non-negative integer
+	 * @param k The number of successes, {@literal 0 <= k <= n}
+	 * @return The number of choices of k objects from n distinct objects
+	 */
+	public static BigInteger binom(int n, int k)
+	{
+		BigInteger rtval = BigInteger.ONE;
+		for(int i = 1; i <= k; i++ ) {
+			rtval = rtval.multiply(BigInteger.valueOf(n-i+1)).divide(BigInteger.valueOf(i));
+		}
+		return rtval;
+	}
+	
+	/**
+	 * Returns the probability of k successes in n trials given 
+	 * 		the probability of one success is p.
+	 * 
+	 * Compare this carefully with
+	 * cumulativeBinomProb which returns a cumulative probability.
+	 * 
+	 * @param n	The number of trials.  Should be non-negative
+	 * @param k The number of successes.
+	 * 			{@literal 0 <= k <= n }
+	 * @param p Probability of one success.
+	 * 			{@literal 0.0 <= p <= 1.0}
+	 * @return Probability of k successes in n trials
+	 */
+	public static Rational binomProb(int n, int k, Rational p )
+	{
+		Rational rtval = new Rational(binom(n, k), BigInteger.ONE);
+		rtval = rtval.multiply(p.power(k));
+		rtval = rtval.multiply((Rational.ONE.subtract(p)).power(n-k));
+		return rtval;
+/*
+		Rational rtval = new Rational(1,1);
+		for(int i = 0; i < k; i++ ) {
+			rtval = rtval.multiply(p);
+		}
+		Rational one = new Rational(1,1);
+		Rational q = one.subtract(p);
+		for(int i = k; i < n; i++ ) {
+			rtval = rtval.multiply(q);
+		}
+		return rtval.multiply(new Rational(binom(n,k),BigInteger.ONE));
+*/
+	}
+
+	/**
+	 * 	Returns the probability of k or fewer successes in n binomial trials.
+	 * p is the probability of a success in one trial.
+	 * @param n  Number of binomial trials. Must be at least 0.
+	 * @param k  Maximum number of successes.  Must be non-negative and no 
+	 * 		bigger than n.
+	 * @param p The probability of success in one trial.  Must be betwee 0.0
+	 * 		and 1.0, inclusive.
+	 * @return The probability of k or fewer successes in n trials where p
+	 * 		 is the probability of success in one trial.
+	 */
+	public static Rational cumulativeBinomProb(int n, int k, Rational p )
+	{
+		Rational rtval = Rational.ZERO;
+		for(int i = 0; i <= k; i++ ) {
+			rtval = rtval.add(binomProb(n, i, p));
+		}
+		return rtval;
+	}
+
+}
