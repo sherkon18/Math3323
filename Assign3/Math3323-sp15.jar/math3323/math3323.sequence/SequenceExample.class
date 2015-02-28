@@ -1,0 +1,63 @@
+package math3323.sequence;
+
+public class SequenceExamples {
+
+	/**
+	 * The purpose of this class is to provide static resources.
+	 * Therefore, we prevent it from being instantiated.
+	 */
+	private SequenceExamples() {}
+	
+	
+	private static Sequence sumOfSquaresVar;
+	
+	/**
+	 * Return a sequence in which the n'th term is the 
+	 * sum of the squares 1*1 + 2*2 + ... + n*n.
+	 * @return Sum of squares sequence
+	 */
+	public static Sequence sumOfSquares() {
+		if(sumOfSquaresVar == null) {
+			sumOfSquaresVar = new Sequence() {
+				public long get(long n) {
+					int rtval = 0;
+					for(int  i = 1; i <= n; i++ )
+						rtval += i*i;
+					return rtval;
+				}
+			};
+		}
+		return sumOfSquaresVar;
+	}
+	
+	
+	private static Sequence squaresVar;
+	
+	/**
+	 * Return the sequence of squares of integers.
+	 * @return The sequence of squares.
+	 */
+	public static Sequence squares() {
+		if(squaresVar == null) {
+			squaresVar = new Sequence() {
+				public long get(long n) {
+					return n*n;
+				}
+			};
+		}
+		return squaresVar;
+	}
+	
+	/**
+	 * Return the sequence of integers.
+	 */
+	public static Sequence n() {
+		return new Sequence() {
+			@Override
+			public long get(long n) {
+				return n;
+			}
+		};
+	}
+	
+}
