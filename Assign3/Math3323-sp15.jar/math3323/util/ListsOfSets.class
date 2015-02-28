@@ -1,0 +1,69 @@
+package math3323.util;
+
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+
+/**
+ * This class provides methods that apply to lists of sets.
+ *
+ * @author Ben Setzer
+ *
+ */
+public class ListsOfSets {
+
+	
+	/**
+	 * Sort a list of sets into order by size.
+	 * The smallest set will be first, largest will be last.
+	 * @param <T>  The type of element in the set doesn't matter
+	 * @param lofs A list of sets
+	 */
+	public static  <T> void  sortBySizeIncreasing(List<Set<T>> lofs) {
+		Collections.sort(lofs, new bySize<T>());
+	}
+	
+	/**
+	 * A comparator that compares to sets by size.
+	 * @author Ben Setzer
+	 *
+	 * @param <T> The type of element in the set doesn't matter
+	 */
+	private static class bySize<T> implements Comparator<Set<T>> {
+
+		@Override
+		public int compare(Set<T> o1, Set<T> o2) {
+			return o1.size() - o2.size();
+		}
+		
+	}
+	
+
+	/**
+	 * Sort a list of sets into order by size.
+	 * The largest set will be first, biggest will be last.
+	 * @param <T>  The type of element in the set doesn't matter
+	 * @param lofs A list of sets
+	 */
+	public static  <T> void  sortBySizeDecreasing(List<Set<T>> lofs) {
+		Collections.sort(lofs, new bySizeReverse<T>());
+	}
+
+	/**
+	 * A comparator that compares to sets by size.
+	 * @author Ben Setzer
+	 *
+	 * @param <T> The type of element in the set doesn't matter
+	 */
+	private static class bySizeReverse<T> implements Comparator<Set<T>> {
+
+		@Override
+		public int compare(Set<T> o1, Set<T> o2) {
+			return o2.size() - o1.size();
+		}
+		
+	}
+	
+	private ListsOfSets() {}
+}
