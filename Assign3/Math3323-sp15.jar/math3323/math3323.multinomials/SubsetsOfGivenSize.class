@@ -1,0 +1,130 @@
+package math3323.multinomials;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
+
+/**
+ * An iterator that will return each subset of a given size from
+ * a given set.
+ * This is implemented using stringss to represent the elements
+ * of the basic set.
+ * 
+ * @author Ben
+ *
+ */
+public  class SubsetsOfGivenSize implements Iterator<Set<String>> {
+
+	/**
+	 * The current state of the iterator is represented by an array of 
+	 * positions in a list of set members.
+	 * 
+	 * The size of this array is 'k'.
+	 * 
+	 * invariant: 
+	 * selected[i] < selected[i+1] for 0 <= i < k-1
+	 * 
+	 * 
+	 */
+	private int[] selected;
+	
+	/**
+	 * This flag is true while the iterator has at least another value
+	 * to return.
+	 */
+	private boolean hasMore;
+	
+	
+	/**
+	 * Base list of elements from which we select.
+	 */
+	private List<String> baseList;
+	
+	/**
+	 * Create an iterator that will return the subsets of size k from
+	 * the set of strings, base.
+	 * 
+	 * @param k  0 <= k <= base.size()
+	 */
+	public SubsetsOfGivenSize(Set<String> base, int k) {
+		//System.out.println("Creating subset of size " + k + " from base " + base);
+		selected = new int[k];
+		baseList = new ArrayList<String>(base);
+		for(int i = 0; i < selected.length; i++ ) {
+			selected[i] = i;
+		}
+		hasMore = (0 <= k) && (k <= base.size());
+		//System.out.println("Setup done");
+	}
+	
+	
+	/**
+	 * The selected array starts with 0, 1, ... k-1.
+	 * The last possible combination is N-k, ... N-1
+	 */
+	@Override
+	public boolean hasNext() {
+//			int d = baseList.size() - selected.length;
+//			for(int i = 0; i < selected.length; i++ ) {
+//				if(selected[i] != i + d) {
+//					return true;
+//				} else {
+//					// keep going
+//				}
+//			}
+//			return false;
+		return hasMore;
+	}
+
+	@Override
+	public Set<String> next() {
+		// first, pick the elements
+		Set<String> rtval = new TreeSet<String>();
+		for(int i = 0; i < selected.length; i++ ) {
+			rtval.add(baseList.get(selected[i]));
+		}
+		// then, go to the next combination
+		
+		int k = selected.length;
+		int N = baseList.size();
+		if(k > 0) {
+			// this only works if k > 0
+			if(selected[k-1] < N-1) {
+				// step the last element
+				selected[k-1]++;
+			} else {
+				// must find the element to step, if any
+				int j = k-2;
+				while(j >= 0 && selected[j] + 1 == selected[j+1]) {
+					j--;
+				}
+				if(j < 0) {
+					// there is no 'next', change the flag
+					hasMore = false;
+				} else {
+					selected[j]++;
+					j++;
+					while(j < k) {
+						selected[j] = selected[j-1] + 1;
+						j++;
+					}
+				}
+			}
+		} else {
+			// there is only one empty subset
+			hasMore = false;
+		}
+		return rtval;
+	}
+
+	@Override
+	public void remove() {
+		throw new RuntimeException("It is not valid to attempt to use method SubsetsOfGivenSize.remove");
+		
+	}
+	
+}
+
