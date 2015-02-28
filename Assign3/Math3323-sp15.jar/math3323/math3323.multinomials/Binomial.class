@@ -1,0 +1,133 @@
+package math3323.multinomials;
+
+/**
+ *  This class provides a number of static functions that return binomial coefficients
+ *  and probabilities for binomial experiments.
+ * @author Ben Setzer
+ *
+ */
+public class Binomial {
+
+	/**
+	 * This class is intended to be used only for its static methods.
+	 *	It cannot be instantiated.
+	 */
+	private Binomial()
+	{
+		
+	}
+	
+	
+	/**
+	 * Binomial coefficient n over k.
+	 * @param n The number of trials. Should be a non-negative integer
+	 * @param k The number of successes, {@literal 0 <= k <= n}
+	 */
+	/*public static int binom(int n, int k)
+	{
+		int rtval = 1;
+		for(int i = 1; i <= k; i++ ) {
+			rtval = rtval * (n-i+1) / (i);
+		}
+		return rtval;
+	}*/
+	
+
+
+	/**
+	 * Returns the binomial coefficient n over k.
+	 * @param n The number of trials. Should be a non-negative integer
+	 * @param k The number of successes, {@literal 0 <= k <= n}
+	 * @return The number of choices of k objects from n distinct objects
+	 */
+public static long binom(int n, int k)
+	{
+		long rtval = 1;
+		for(int i = 1; i <= k; i++ ) {
+			rtval = rtval * (n-i+1) / (i);
+		}
+		return rtval;
+	}
+	
+	/**
+	 * Returns the probability of k successes in n trials given 
+	 * 		the probability of one success is p.
+	 * 
+	 * Compare this carefully with
+	 * cumulativeBinomProb which returns a cumulative probability.
+	 * 
+	 * @param n	The number of trials.  Should be non-negative
+	 * @param k The number of successes.
+	 * 			{@literal 0 <= k <= n }
+	 * @param p Probability of one success.
+	 * 			{@literal 0.0 <= p <= 1.0}
+	 * @return Probability of k successes in n trials
+	 */
+/*	public static double binomProb(int n, int k, double p )
+	{
+		double rtval = 1;
+		for(int i = 0; i < k; i++ ) {
+			rtval *= p;
+		}
+		for(int i = k; i < n; i++ ) {
+			rtval *= (1.0-p);
+		}
+		return rtval * binom(n,k);
+	}
+	*/
+
+	/**
+	 * Returns the probability of k successes in n trials given 
+	 * 		the probability of one success is p.
+	 * 
+	 * Compare this carefully with
+	 * cumulativeBinomProb which returns a cumulative probability.
+	 * 
+	 * @param n	The number of trials.  Should be non-negative
+	 * @param k The number of successes.
+	 * 			{@literal 0 <= k <= n }
+	 * @param p Probability of one success.
+	 * 			{@literal 0.0 <= p <= 1.0}
+	 * @return Probability of k successes in n trials
+	 */
+	public static double binomProb(int n, int k, double p )
+	{
+		double rtval = 1;
+		int i = 1;
+		for( ; i <= k; i++ ) {
+			rtval *= p * (n-i+1) / i;
+		}
+		for( ; i <= n; i++ ) {
+			rtval *= (1.0-p);
+		}
+		return rtval;
+	}
+	
+	/**
+	 * 	Returns the probability of k or fewer successes in n binomial trials.
+	 * p is the probability of a success in one trial.
+	 * @param n  Number of binomial trials. Must be at least 0.
+	 * @param k  Maximum number of successes.  Must be non-negative and no 
+	 * 		bigger than n.
+	 * @param p The probability of success in one trial.  Must be betwee 0.0
+	 * 		and 1.0, inclusive.
+	 * @return The probability of k or fewer successes in n trials where p
+	 * 		 is the probability of success in one trial.
+	 */
+	public static double cumulativeBinomProb(int n, int k, double p )
+	{
+		double rtval = 0.0;
+		for(int i = 0; i <= k; i++ ) {
+			rtval += binomProb(n, i, p);
+		}
+		return rtval;
+	}
+	
+	/*public static long factorial(int n) {
+		long t = 1;
+		for(int i = 1; i <= n; i++ ) 
+			t *= i;
+		return t;
+	}*/
+	
+}
