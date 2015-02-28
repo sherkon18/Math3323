@@ -1,0 +1,322 @@
+package math3323.sequence;
+
+import java.math.BigInteger;
+
+import math3323.util.Rational;
+
+
+
+/**
+ * Objects of this class are rectangular integer matrices.
+ * Consistant with Java conventions, rows and columns are numbered starting at 0.
+ * 
+ * <p>
+ * Two methods are provided to create matrices.
+ * <ul>
+ * 	<li>
+ * 		A constructor is provided that creates a matrix with a given
+ * 			number of rows and columns.
+ * 			The matrix is initialized to all 0 entries.
+ * 
+ * 	<li>
+ * 		Two <em>factory methods</em> are provided that create a 
+ * 			matrix with a given number of rows and columns but intializing
+ * 			the matrix with values from a given sequence.
+ * 			This will be used in one of the assignments. 
+ * </ul>
+ * 
+ * 
+ * @author Ben Setzer
+ *
+ */
+public final class RationalMatrix {
+
+	private Rational data[][];
+	
+	/**
+	 * Create a matrix with numrows rows and numcols columns.
+	 * @param numrows Should be at least 1
+	 * @param numcols Should be at least 1
+	 */
+	public RationalMatrix(int numrows, int numcols)
+	{
+		data = new Rational[numrows][numcols];
+	}
+	
+	/**
+	 *		Return a matrix that is filled with values of sequence s.
+	 *	The first row contains s(0), s(1), ...
+	 *	The second row contains s(1), s(2), .. 
+	 *	and so on. 
+	 *
+	 * <p>
+	 * 	The resulting matrix is the same as from {@code sequenceFill}
+	 * 		but with the rows reflected end-for-end.
+	 *
+	 *
+	 *	@param numrows The number of rows in the matrix.
+	 *					Should be positive.
+	 *	@param numcols The number of columns in the matrix.
+	 *						Should be positive
+	 *	@param s    The sequence whose values will fill the matrix.
+	 *				Should be non-null
+	 */
+	public static RationalMatrix sequenceFillAlt(int numrows, int numcols, Sequence s )
+	{
+		RationalMatrix m = new RationalMatrix(numrows, numcols);
+		for(int r = 0; r < m.getNumRows(); r++ ) {
+			for(int c = 0; c < m.getNumCols(); c++ ) {
+				m.set(r,c,new Rational(s.get(r+c)));
+			}
+		}
+		return m;
+	}
+	
+	/**
+	 *		Return a matrix that is filled with values of sequence s.
+	 *	The first row contains s(numcols-1), s(numcols-2), ... , s(0)
+	 *	The second row contains s(numcols), s(numcols-1), ... , s(1)
+	 *	and so on.
+	 * 
+	 *	@param numrows The number of rows in the matrix.
+	 *					Should be positive.
+	 *	@param numcols The number of columns in the matrix.
+	 *						Should be positive
+	 *	@param s    The sequence whose values will fill the matrix.
+	 *				Should be non-null
+	 */
+	public static RationalMatrix sequenceFill(int numrows, int numcols, Sequence s )
+	{
+		RationalMatrix m = new RationalMatrix(numrows, numcols);
+		for(int r = 0; r < m.getNumRows(); r++ ) {
+			for(int c = 0; c < m.getNumCols(); c++ ) {
+				m.set(r,c,new Rational(s.get(numcols-1+r-c)));
+			}
+		}
+		return m;
+	}
+	
+	
+	
+	/**
+	 * Get the element in given row and column.
+	 * @param row Should be from 0 to numrows-1
+	 * @param col Should be from 0 to numcols-1
+	 */
+	public Rational get(int row, int col )
+	{
+		return data[row][col];
+	}
+	
+	/**
+	 * 	Set the value of the element in the given row and column
+	 * @param row Should be from 0 to numrows-1
+	 * @param col Should be from 0 to numcols-1
+	 * @param val  The value to be stored in the matrix.
+	 */
+	public void set(int row, int col, Rational val )
+	{
+		data[row][col] = val;
+	}
+	
+	/**
+	 * Return the number of columns.
+	 */
+	public int getNumCols()
+	{
+		return data[0].length;
+	}
+	
+	/**
+	 * 	Return the number of rows.
+	 */
+	public int getNumRows()
+	{
+		return data.length;
+	}
+
+	/**
+	 * Swap rows r1 and r2 in this matrix.
+	 * 			If r1 is the same as r2, there is no harm other than
+	 * 			wasting some time.
+	 * @param r1 Should be in proper range for a row number.
+	 * @param r2 Should be in proper range for a row number.
+	 */
+	private void swapRows(int r1, int r2)
+	{
+		for(int c = 0; c < getNumCols(); c++ ) {
+			Rational t = get(r1,c);
+			set(r1, c, get(r2, c));
+			set(r2, c, t);
+		}
+	}
+	
+	/**
+	 * Add s times row r2 to row r1.
+	 * 
+	 * @param r1 Should be in the proper range for a row number
+	 * @param r2 Should be in the proper range for a row number
+	 * 			r2 should not equal r1.
+	 * @param s  The scalar multiple.  The value is arbitrary, though
+	 * 			a value of 0 means nothing effective happens.
+	 */
+	private void addRow(int r1, int r2, Rational s)
+	{
+		//System.out.printf("Multiplier for row %d is %s%n", r1, s);
+		if(r1 == r2) {
+			throw new IllegalArgumentException(
+				String.format(
+					"Matrix.addRow: Row numbers (%d) should not be equal%n",
+						r1, r2)
+					);
+		}
+		for(int c = 0; c < getNumCols(); c++ ) {
+			Rational t = s.multiply(get(r2,c));
+			t = get(r1,c).add(t);
+			set(r1, c, t);
+		}
+	}
+	
+	/**
+	 * Multiply every entry in row r by s.
+	 * @param r  Row to scale.  Should be in proper range for row.
+	 * @param s  Scale factor. 
+	 */
+	private void scaleRow(int r, Rational s) {
+		for(int c = 0;  c < getNumCols(); c++ ) {
+			Rational t = s.multiply(get(r,c));
+			set(r,c,t);
+		}
+	}
+	
+	
+	
+	
+	private static class Position {
+		int row, col;
+		
+		public Position(int r, int c) {
+			row = r;
+			col = c;
+		}
+	}
+	
+	/**
+	 * Return the position of a non-zero entry where row is
+	 *   {@literal >= r0} and {@literal column is >= c0}.
+	 *   If there is such an entry, find the one with minimal column.
+	 *   
+	 * Return null if no such entry is found.
+	 * @param r0 Starting row for search
+	 * @param c0 Starting column for search
+	 * @return Position found, if any.  Null if no such position found.
+	 * 	The position returned, if found, has minimal column.
+	 */
+	private Position findNonZeroEntry(int r0, int c0) {
+		for(int c = c0; c < getNumCols(); c++) {
+			for(int r = r0; r < getNumRows(); r++ ) {
+				if(!get(r,c).isZero())
+					return new Position(r,c);
+			}
+		}
+		return null;
+	}
+	
+	
+	/**
+	 * Perform integer Gaussian reduction.
+	 * Reduces the matrix to row echelon form.
+	 */
+	public void reduceMatrix()
+	{
+		int r = 0;
+		int c = 0;
+		while(r < getNumRows() && c < getNumCols()) {
+			Position p = findNonZeroEntry(r, c);
+			if(p == null)
+				break;
+			//System.out.println("Position: " + p.row + " " + p.col);
+			//System.out.println("pivot: " + get(p.row,p.col));
+			swapRows(r, p.row);
+			c = p.col;
+			// pivot on (r,c)
+			// first make position (r,c) equal to 1
+			scaleRow(r, get(r,c).reciprocal());
+			//  then eliminate from other rows
+			for(int row = 0; row < getNumRows(); row++ ) {
+				if(row != r) {
+					addRow( row, r, get(row,c).negate());
+				} else {
+					// do nothing to row r
+				}
+			}
+			r++;
+			c++;
+			//System.out.println(this);
+		}
+	}
+
+	
+	
+	/**
+	 * Returns a string with the matrix elements formatted in 
+	 * rectangular form.
+	 * Each element is given 8 characters to display.
+	 */
+	@Override
+	public String toString() {
+		//int width = 10;
+		StringBuilder sb = new StringBuilder("------------------\n");
+		for( int r = 0; r < getNumRows(); r++ ) {
+			for(int c = 0; c < getNumCols(); c++ ) {
+				//sb.append(String.format("%" + width + "d ", get(r,c)));
+				sb.append(get(r,c) + " ");
+			}
+			sb.append("\n");
+		}
+		sb.append("------------------\n");
+		return sb.toString();
+	}
+	
+	/**
+	 * Scale row r so that all entries are integers.
+	 * This will probably fail badly if any entry has zero denominator.
+	 * @param r Should be in the proper range for a row.
+	 */
+	public void scaleRowToInteger(int r) {
+		BigInteger lcd = BigInteger.ONE;
+		for(int c = 0; c < getNumCols(); c++ ) {
+			BigInteger denom = get(r,c).getDenom();
+			BigInteger prod = lcd.multiply(denom);
+			BigInteger gcd = lcd.gcd(denom);
+			lcd = prod.divide(gcd);
+		}
+		Rational factor = new Rational(lcd, BigInteger.ONE);
+		scaleRow(r, factor);
+	}
+
+	/**
+	 * Scale all rows in this matrix to integers by multiplying each row
+	 * by its least common denominator.
+	 */
+	public void scaleToInteger() {
+		for(int r = 0; r < getNumRows(); r++) {
+			scaleRowToInteger(r);
+		}
+	}
+	
+	
+	/**
+	 * Return an array of the numerators of elements.
+	 * @return Numerators off elements.
+	 */
+	public BigInteger[][] getNumerators() {
+		BigInteger[][] mat = new BigInteger[getNumRows()][getNumCols()];
+		for(int r = 0; r < getNumRows(); r++ ) {
+			for(int c = 0; c < getNumCols(); c++ ) {
+				mat[r][c] = data[r][c].getNum();
+			}
+		}
+		return mat;
+	}
+}
