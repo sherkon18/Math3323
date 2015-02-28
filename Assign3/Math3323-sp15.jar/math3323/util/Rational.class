@@ -1,0 +1,289 @@
+/*
+ * Created on Nov 18, 2005
+ */
+package math3323.util;
+
+import java.math.BigInteger;
+
+/**
+ * Represents rational numbers.
+ * This class provides precise arithmetic of rational numbers.
+ * Numerator and denominator of a Rational are represented by 
+ * class BigInteger, so precision is only limited by computer memory.
+ * 
+ * @author Ben Setzer
+ */
+public final class Rational implements Comparable<Rational> 
+{
+	// numerator and denominator
+	// These will have a gcd of 1 and denom is >= 0
+	// We do allow denom == 0 though that is of questionable use
+	private BigInteger num, denom;
+	
+	// Some useful constants
+	public static final Rational ZERO = new Rational(0,1);
+	public static final Rational ONE = new Rational(1,1);
+	public static final Rational HALF = new Rational(1,2);
+	public static final Rational NAN = new Rational(0,0);
+	
+	
+	/**
+	 * Create a rational number from a denominator and numerator.
+	 */
+	public Rational(int num, int denom )
+	{
+		this(BigInteger.valueOf(num), BigInteger.valueOf(denom));
+	}
+	
+	/**
+	 * Create a rational number from an integer.
+	 */
+	public Rational(int num )
+	{
+		this(BigInteger.valueOf(num), BigInteger.ONE);
+	}
+
+	/**
+	 * Create a rational number from an integer.
+	 */
+	public Rational(long num )
+	{
+		this(BigInteger.valueOf(num), BigInteger.ONE);
+	}
+
+	
+	/**
+	 * Create a rational number from a denominator and numerator.
+	 */
+	public Rational(long num, long denom )
+	{
+		this(BigInteger.valueOf(num), BigInteger.valueOf(denom));
+	}
+	
+	/**
+	 * Create a rational number from a denominator and numerator.
+	 * The internal representation is 'normalized'.
+	 */	
+	public Rational(BigInteger num, BigInteger denom )
+	{
+		this.num = num;
+		this.denom = denom;
+		normalize();
+	}
+	
+	/**
+	 * 	Ensure that num and denom are relatively prime (unless one of them
+	 * is 0).  Also, ensure that denom is >= 0.
+	 */
+	private void normalize()
+	{
+		BigInteger g = num.gcd(denom);
+		if( !g.equals(BigInteger.ZERO)) {
+			num = num.divide(g);
+			denom = denom.divide(g);
+		}
+		if( denom.compareTo(BigInteger.ZERO) < 0 ) {
+			num = num.negate();
+			denom = denom.negate();
+		}
+	}
+	
+	
+	
+	
+	/**
+	 * Return the numerator of this fraction.
+	 * @return The numerator
+	 */
+	public BigInteger getNum() {
+		return num;
+	}
+
+	/**
+	 * Return the denominator of this rational.
+	 * @return The denominator.
+	 */
+	public BigInteger getDenom() {
+		return denom;
+	}
+
+	/**
+	 * Return the sum of this and r.
+	 */
+	public Rational add(Rational r)
+	{
+		BigInteger n = num.multiply(r.denom).add(denom.multiply(r.num));
+		BigInteger d = denom.multiply(r.denom);
+		return new Rational(n,d);
+	}
+	
+	/**
+	 * Return the difference of this minus r.
+	 */
+	public Rational subtract(Rational r)
+	{
+		BigInteger n = num.multiply(r.denom).subtract(denom.multiply(r.num));
+		BigInteger d = denom.multiply(r.denom);
+		return new Rational(n,d);
+	}
+	
+	
+	/**
+	 * Return the product of this and r.
+	 */
+	public Rational multiply(Rational r)
+	{
+		BigInteger n = num.multiply(r.num);
+		BigInteger d = denom.multiply(r.denom);
+		return new Rational(n,d);
+	}
+	
+	/**
+	 * Return the quotient of this divded by r.
+	 */
+	public Rational divide(Rational r)
+	{
+		BigInteger n = num.multiply(r.denom);
+		BigInteger d = denom.multiply(r.num);
+		return new Rational(n,d);
+	}
+	
+	/**
+	 * Return the reciprocal of this.
+	 */
+	public Rational reciprocal()
+	{
+		return new Rational(denom,num);
+	}
+	
+	public Rational negate() {
+		return new Rational(num.negate(),denom);
+	}
+	
+	/**
+	 * Return the absolute value
+	 */
+	public Rational abs() {
+		BigInteger num = this.num.abs();
+		BigInteger denom = this.denom.abs();
+		return new Rational(num, denom);
+	}
+	
+	/**
+	 * 	Returns this raised to the n'th power.
+	 * n is allowed to be negative.
+	 */
+	public Rational power(int n)
+	{
+		Rational rtval;
+		if( n == 0 ) {
+			if( isInfinite() || isNAN() )
+				rtval = NAN;
+			else
+				rtval = ONE;
+		} else if( n < 0 ) {
+			rtval = power(-n).reciprocal();
+		} else  {
+			// the method used is recursive, but cuts down on then number of
+			// muliplications needed by a very large factor.
+			Rational t = power(n/2);
+			rtval = t.multiply(t);
+			if( n % 2 == 1 ){
+				rtval = multiply(rtval);
+			}
+		}
+		return rtval;
+	}
+	
+	/**
+	 * 	Returns true only if x is Rational and it is the same value as this.
+	 */
+	public boolean equals(Object x)
+	{
+		if( x instanceof Rational ) {
+			Rational r = (Rational)x;
+			// because this rational is always normalized, we can check simply
+			//   for equality of numerator and denominator.
+			return num.equals(r.num) && denom.equals(r.denom);
+		}
+		else 
+			return false;
+	}
+	
+	/**
+	 * 	Returns true if the denominator is 0 but the numerator is not zero.
+	 */
+	public boolean isInfinite()
+	{
+		return denom.equals(BigInteger.ZERO) && 
+				!num.equals(BigInteger.ZERO);
+	}
+	
+	/**
+	 * 	Returns true if both the denominator and numerator are zero.
+	 */
+	public boolean isNAN()
+	{
+		return denom.equals(BigInteger.ZERO) && 
+				num.equals(BigInteger.ZERO);
+	}
+
+	public boolean isZero() {
+		return num.equals(BigInteger.ZERO) &&
+			!denom.equals(BigInteger.ZERO);
+	}
+	
+	/**
+	 * 	Returns a simple string representation of this.
+	 */
+	public String toString()
+	{
+		return num + "/" + denom;
+	}
+	
+	/**
+	 * 	Returns a double value approximately equal to this.
+	 * 	If the rational value is very large, this will fail.
+	 */
+	public double doubleValue()
+	{
+		BigInteger rem;
+		rem = num.remainder(denom);
+		double val = num.divide(denom).doubleValue();
+		int base = 1024;
+		BigInteger mulby = BigInteger.valueOf(base);
+		double factor = base;
+		for(int x = 0; x < 30; x++ ) {
+			rem = rem.multiply(mulby);
+			val += rem.divide(denom).doubleValue()/factor;
+			rem = rem.remainder(denom);
+			factor *= base;
+		}
+		return val;
+		// return num.doubleValue()/denom.doubleValue();
+	}
+
+	/**
+	 * 	Returns a value indicating the numerical relationship between this and r.
+	 * 	Returns a negative value if this is less than r.
+	 * 	Returns a positive value if this is greater than r.
+	 * 	Returns 0 if this and r are equal.
+	 */
+	public int compareTo(Rational r) {
+		// this works because this and r are normalized so both denominators are
+		//   non-negative.
+		BigInteger left = num.multiply(r.denom);
+		BigInteger right = denom.multiply(r.num);
+		return left.compareTo(right);
+	}
+	
+	/**
+	 * Return least common denominator of this and r.
+	 */
+	public BigInteger leastCommonDenominator(Rational r) {
+		BigInteger rdenom = r.denom;
+		BigInteger lcd = rdenom.multiply(denom).divide(rdenom.gcd(denom));
+		return lcd;
+	}
+
+}
