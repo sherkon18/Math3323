@@ -1,0 +1,392 @@
+package math3323.sequence;
+
+import math3323.util.Rational;
+
+
+/**
+ * Objects of this class are rectangular integer matrices.
+ * Consistant with Java conventions, rows and columns are numbered starting at 0.
+ * 
+ * <p>
+ * Two methods are provided to create matrices.
+ * <ul>
+ * 	<li>
+ * 		A constructor is provided that creates a matrix with a given
+ * 			number of rows and columns.
+ * 			The matrix is initialized to all 0 entries.
+ * 
+ * 	<li>
+ * 		Two <em>factory methods</em> are provided that create a 
+ * 			matrix with a given number of rows and columns but intializing
+ * 			the matrix with values from a given sequence.
+ * 			This will be used in one of the assignments. 
+ * </ul>
+ * 
+ * 
+ * @author Ben Setzer
+ *
+ */
+public final class Matrix {
+
+	private long data[][];
+	
+	/**
+	 * Create a matrix with numrows rows and numcols columns.
+	 * @param numrows Should be at least 1
+	 * @param numcols Should be at least 1
+	 */
+	public Matrix(int numrows, int numcols)
+	{
+		data = new long[numrows][numcols];
+	}
+	
+	/**
+	 *		Return a matrix that is filled with values of sequence s.
+	 *	The first row contains s(0), s(1), ...
+	 *	The second row contains s(1), s(2), .. 
+	 *	and so on. 
+	 *
+	 * <p>
+	 * 	The resulting matrix is the same as from {@code sequenceFill}
+	 * 		but with the rows reflected end-for-end.
+	 *
+	 *
+	 *	@param numrows The number of rows in the matrix.
+	 *					Should be positive.
+	 *	@param numcols The number of columns in the matrix.
+	 *						Should be positive
+	 *	@param s    The sequence whose values will fill the matrix.
+	 *				Should be non-null
+	 */
+	public static Matrix sequenceFillAlt(int numrows, int numcols, Sequence s )
+	{
+		Matrix m = new Matrix(numrows, numcols);
+		for(int r = 0; r < m.getNumRows(); r++ ) {
+			for(int c = 0; c < m.getNumCols(); c++ ) {
+				m.set(r,c,s.get(r+c));
+			}
+		}
+		return m;
+	}
+	
+	/**
+	 *		Return a matrix that is filled with values of sequence s.
+	 *	The first row contains s(numcols-1), s(numcols-2), ... , s(0)
+	 *	The second row contains s(numcols), s(numcols-1), ... , s(1)
+	 *	and so on.
+	 * 
+	 *	@param numrows The number of rows in the matrix.
+	 *					Should be positive.
+	 *	@param numcols The number of columns in the matrix.
+	 *						Should be positive
+	 *	@param s    The sequence whose values will fill the matrix.
+	 *				Should be non-null
+	 */
+	public static Matrix sequenceFill(int numrows, int numcols, Sequence s )
+	{
+		Matrix m = new Matrix(numrows, numcols);
+		for(int r = 0; r < m.getNumRows(); r++ ) {
+			for(int c = 0; c < m.getNumCols(); c++ ) {
+				m.set(r,c,s.get(numcols-1+r-c));
+			}
+		}
+		return m;
+	}
+	
+	
+	
+	/**
+	 * Get the element in given row and column.
+	 * @param row Should be from 0 to numrows-1
+	 * @param col Should be from 0 to numcols-1
+	 */
+	public long get(int row, int col )
+	{
+		return data[row][col];
+	}
+	
+	/**
+	 * 	Set the value of the element in the given row and column
+	 * @param row Should be from 0 to numrows-1
+	 * @param col Should be from 0 to numcols-1
+	 * @param val  The value to be stored in the matrix.
+	 */
+	public void set(int row, int col, long val )
+	{
+		data[row][col] = val;
+	}
+	
+	/**
+	 * Return the number of columns.
+	 */
+	public int getNumCols()
+	{
+		return data[0].length;
+	}
+	
+	/**
+	 * 	Return the number of rows.
+	 */
+	public int getNumRows()
+	{
+		return data.length;
+	}
+
+	/**
+	 * Swap rows r1 and r2 in this matrix.
+	 * 			If r1 is the same as r2, there is no harm other than
+	 * 			wasting some time.
+	 * @param r1 Should be in proper range for a row number.
+	 * @param r2 Should be in proper range for a row number.
+	 */
+	private void swapRows(int r1, int r2)
+	{
+		for(int c = 0; c < getNumCols(); c++ ) {
+			long t = get(r1,c);
+			set(r1, c, get(r2, c));
+			set(r2, c, t);
+		}
+	}
+	
+	/**
+	 * Add s times row r2 to row r1.
+	 * 
+	 * @param r1 Should be in the proper range for a row number
+	 * @param r2 Should be in the proper range for a row number
+	 * 			r2 should not equal r1.
+	 * @param s  The scalar multiple.  The value is arbitrary, though
+	 * 			a value of 0 means nothing effective happens.
+	 */
+	private void addRow(int r1, int r2, long s)
+	{
+		if(r1 == r2) {
+			throw new IllegalArgumentException(
+				String.format(
+					"Matrix.addRow: Row numbers (%d) should not be equal%n",
+						r1, r2)
+					);
+		}
+		for(int c = 0; c < getNumCols(); c++ ) {
+			set(r1, c, get(r1,c) + s*get(r2,c));
+		}
+	}
+	
+	/**
+	 * Divide row r by the gcd of its elements.
+	 * @param r should be between 0 and getNumRows
+	 * 
+	 */
+	private void reduceRow(int r)
+	{
+		long g = get(r,0);;
+		for( int c = 1; c < getNumCols(); c++ ) {
+			g = gcd(g, get(r,c));
+		}
+		if( g > 1 ) {
+			for( int c = 0; c < getNumCols(); c++ ) {
+				set(r, c, get(r,c)/g);
+			}			
+		}
+	}
+	
+	
+	/**
+	 * This reduces the matrix by using a rational matrix and
+	 * then converting back.
+	 */
+	public void reduceMatrixViaRational() {
+		RationalMatrix rm = new RationalMatrix(getNumRows(), getNumCols());
+		for(int r = 0; r < getNumRows(); r++)
+			for(int c = 0; c < getNumCols(); c++ ) 
+				rm.set(r, c, new Rational(data[r][c]));
+		rm.reduceMatrix();
+		rm.scaleToInteger();
+		for(int r = 0; r < getNumRows(); r++) {
+			for(int c = 0; c < getNumCols(); c++ ) { 
+				data[r][c] = rm.get(r,c).getNum().longValue();
+			}
+		}
+	}
+	
+	/**
+	 * Perform integer Gaussian reduction.
+	 * Reduces the matrix to row echelon form.
+	 */
+	public void reduceMatrix()
+	{
+		// do it twice as a compromise
+		reduceMatrixSub();
+		reduceMatrixSub();
+/*
+		int r = 0;
+		int c = 0;
+		while( r < getNumRows() && c < getNumCols() ) {
+			while( c < getNumCols() && allZeros(r,c) )
+				c++;
+			if( c < getNumCols() ) {
+				reduceColumn(r,c);
+				r++;
+				c++;
+			}
+		}
+*/
+	}
+
+	/**
+	 * Perform one round of Gaussian reduction on the matrix.
+	 * This may not be enough as some rows may reduce after
+	 * lower rows have been eliminated.
+	 */
+	private void reduceMatrixSub()
+	{
+		int r = 0;
+		int c = 0;
+		while( r < getNumRows() && c < getNumCols() ) {
+			while( c < getNumCols() && allZeros(r,c) )
+				c++;
+			if( c < getNumCols() ) {
+				reduceColumn(r,c);
+				r++;
+				c++;
+			}
+		}
+	}
+
+	
+	
+	
+	/**
+	 *	Perform reduction operations on rows r and lower in column c.
+	 *	The result will be a single non-zero element among (r,c), ... (numRows-1,c)
+	 *	(that is, unless all the elements are 0 to begin with) 
+	 *	Also, rows above r are reduced once, after this is done.
+	 *	
+	 */
+	private void reduceColumn(int r, int c)
+	{
+		//System.out.println("Reducing\n" + this);
+		if( !allZeros(r,c) ) {
+			reduceRow(r);
+			// while there are non-zeros below row r in column c
+			while( !allZeros(r+1,c) ) {
+				// get min in row r
+				swapMinRow(r,c);
+				if( get(r,c) < 0 ) {
+					for( int i = 0; i < getNumCols(); i++ ) {
+						set(r,i,-get(r,i));
+					}
+				}
+				// System.out.println("min row swapped: " + this);
+				// reduce other rows
+				for(int i = r+1; i < getNumRows(); i++ ) {
+					long f = get(i,c) / get(r,c);
+					addRow(i, r, -f);
+				}
+			}
+			for(int i = 0; i < r; i++ ) {
+				long f = get(i,c) / get(r,c);
+				addRow(i, r, -f);				
+			}
+			for(int i = r; i < getNumRows(); i++ ) {
+				reduceRow(i);
+			}
+		}
+	}
+	
+	/**
+	 *	Return true iff elements (r,c), (r+1,c) ... are all 0 
+	 */
+	private boolean allZeros(int r, int c)
+	{
+		int i = r;
+		while( i < getNumRows() && get(i,c) == 0 )
+			i++;
+		return i >= getNumRows();
+	}
+	
+	/**
+	 * Swap the row among r, r+1, ... with the smallest non-zero element in column
+	 * c with row r.
+	 * Use absolute value of elements
+	 */
+	private void swapMinRow(int r, int c)
+	{
+		int m = r;
+		while( m < getNumRows() && get(m,c) == 0 )
+			m++;
+		if( m < getNumRows() ) {
+			for( int i = m+1; i < getNumRows(); i++ ) {
+				if( Math.abs(get(i,c)) < Math.abs(get(m,c)) && get(i,c) != 0) {
+					m = i;
+				}
+			}
+			if( m != r ) 
+				swapRows(m, r);
+		}
+	}
+	
+	
+	/**
+	 * 	Return the gcd of a and b.
+	 * 	Returns 0 if both a and b are 0.
+	 * 
+	 * 	This is really just used internally, but might be useful elsewhere.
+	 */
+	private static long gcd(long a, long b)
+	{
+		a = Math.abs(a);
+		b = Math.abs(b);
+		while( a > 0 ) {
+			long c = b % a;
+			b = a;
+			a = c;
+		}
+		return b;
+	}
+	
+	/**
+	 * Returns a string with the matrix elements formatted in 
+	 * rectangular form.
+	 * Each element is given 8 characters to display.
+	 */
+	@Override
+	public String toString() {
+		int width = 10;
+		StringBuilder sb = new StringBuilder("------------------\n");
+		for( int r = 0; r < getNumRows(); r++ ) {
+			for(int c = 0; c < getNumCols(); c++ ) {
+				sb.append(String.format("%" + width + "d ", get(r,c)));
+			}
+			sb.append("\n");
+		}
+		sb.append("------------------\n");
+		return sb.toString();
+	}
+	
+	
+//	public String toString1()
+//	{
+//		int w = 8;  // width to which each element is padded
+//		String s = "------------------\n";
+//		for( int r = 0; r < getNumRows(); r++ ) {
+//			for(int c = 0; c < getNumCols(); c++ ) {
+//				s += pad(get(r,c),w) + " ";
+//			}
+//			s += "\n";
+//		}
+//		s += "------------------\n";
+//		return s;
+//	}
+	
+	// used by toString to make output neat.
+//	private static String pad(int x, int w)
+//	{
+//		String r = x + "";
+//		while( r.length() < w ) 
+//			r = " " + r;
+//		return r;
+//	}
+	
+	
+	
+}
