@@ -1,0 +1,39 @@
+/*
+ * Created on Nov 16, 2005
+ */
+package math3323.sequence;
+
+/**
+ * An Sequence of this class is the product of two other sequences.
+ * 
+ * Two static <em>factory methods</em> are provided.
+ * Use these rather than the constructor, which has been declared private.
+ * 
+ * @author Ben Setzer
+ */
+public final class Product implements Sequence {
+
+	private Sequence s1, s2;
+	
+	private Product(Sequence s1, Sequence s2)
+	{
+		this.s1 = s1;
+		this.s2 = s2;
+	}
+	
+	public static Sequence square(Sequence s)
+	{
+		return new Product(s,s);
+	}
+	
+	
+	public static Sequence product(Sequence s1, Sequence s2) {
+		return new Product(s1,s2);
+	}
+	
+	
+	public long get(long n) {
+		return s1.get(n) * s2.get(n);
+	}
+
+}
