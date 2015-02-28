@@ -1,0 +1,128 @@
+package math3323.multinomials;
+
+import java.util.Iterator;
+
+
+/**
+ * This class provides a permutation generator, that is, an object that
+ * will provide every permutation on a set of elements.
+ * 
+ * <p>
+ * The elements permuted are the characters of a string.
+ * If the string is of length N, then N! total permutations are provided.
+ * If the characters of the string are all distinct, then these different
+ * permutations will also be distinct.
+ * However, if some of the charcters in the string are the same as each 
+ * other, some of the permutations returned will be the same.
+ * We will investigate that phenomenon in one of the assignments.
+ * 
+ * 
+ * <p>
+ * This generator is based on Algorithm 71 by 
+ * R. R. Coveyou and  J. G. Sullivan
+ * Oak Ridge National Laboratory, Oak Ridge, Tenn.
+ *   Communications of the ACM, 
+ *   Volume 4 ,  Issue 11  (November 1961) Page: 497   
+ * 
+ * @author Ben Setzer
+ * Created Dec 15, 2006
+ *
+ */
+public class PermutationGeneratorCoveyouSullivan 
+		implements Iterator<String>, Iterable<String> {
+
+	private String data;  // the string to be permuted
+	private int N;   // data.length()-1
+	private int x[];  // a supplementary array of length N
+	
+	/**
+	 * Create a permutation generator using the characters in data 
+	 * as the initial arrangement.
+	 * 
+	 * @param data The initial arrangment of characters.
+	 * 				Should be non-empty.
+	 */
+	public PermutationGeneratorCoveyouSullivan(String data) {
+		this.data = data;
+		N = data.length()-1;
+		x = new int[N+1];
+		for(int i = 0; i < N; i++ ) 
+			x[i] = 0;
+		x[N] = -1;
+	}
+
+	/**
+	 * Returns true if there is another string available.
+	 */
+	public boolean hasNext() {
+		int i = N;
+		while(i >= 0 && x[i] == i) 
+			i--;
+		return i >= 0;
+	}
+
+	/**
+	 * Returns the next string available, if there is one.
+	 * Use 'hasNext' before using this method.
+	 * The behavior of this method is unpredictable if there are 
+	 * not further strings available.
+	 */
+	public String next() {
+		String rtval;
+		//dumpX();
+		int i = N;
+		while(i >= 0 && x[i] == i) {
+			x[i] = 0;
+			i--;
+		}
+		if(i < 0 ) {
+			throw new IllegalStateException("No more permuations to generate");
+		} else {
+			StringBuffer p = new StringBuffer();
+			x[i]++;
+			p.append(data.charAt(0));
+			for(i = 1; i <= N; i++ ) {
+				if( x[i] < i ) {
+					p.append(p.charAt(x[i]));
+					p.setCharAt(x[i], data.charAt(i));
+				} else {
+					p.append(data.charAt(i));
+				}
+			}
+			//System.out.print(" ========== ");
+			//dumpX();
+			//System.out.println();
+			rtval = p.toString();
+		}
+		return rtval;
+	}
+
+//	private void dumpX() {
+//		for(int i = 0; i < x.length; i++ ) {
+//			System.out.print(x[i] + " " );
+//		}
+//	}
+	
+	/**
+	 * This method should not be used.
+	 * It simply throws an exception.
+	 */
+	public void remove() {
+		throw new UnsupportedOperationException("Remove not allowed in permutation generator");
+	}
+
+	/**
+	 * 	This allows use of the new version of the for loop.
+	 *  <pre>
+	 * 	PermutationGeneratorCoveyouSullivan pgcs = new PermutationGeneratorCoveyouSullivan("ABCDE");
+	 *  for(String s : pgcs) {
+	 *  	// s is the next element in the sequence
+	 *  
+	 *  }
+	 *  </pre>
+	 */
+	public Iterator<String> iterator() {
+		return this;
+	}
+	
+}
