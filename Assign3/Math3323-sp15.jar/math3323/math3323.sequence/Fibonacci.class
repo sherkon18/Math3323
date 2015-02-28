@@ -1,0 +1,144 @@
+package math3323.sequence;
+
+/**
+ * 	This class provides a variety of Fibonacci based sequences.
+ * 	Refer to these using the different variables.
+ * 	So, for example, Fibonacci.FIBONACCI_SQUARED is the sequence
+ * 	of the squares of the Fibonnacci numbers.
+ * <p>
+ * This class also includes a free-standing method that computes the
+ * Fibonacci sequence. 
+ * You may find this useful in building up other sequences.
+ * 
+ * @author Ben Setzer
+ */
+public  class Fibonacci {
+
+	/**
+	 * This class cannot be instantiated, it is only a container for
+	 * static methods.
+	 */
+	private Fibonacci() {}
+	
+	
+	/**
+	 * Return the n'th Fibonacci number
+	 * @param n Is non-negative
+	 */
+	public static long fibonacci(long n)
+	{
+		long a = 1;
+		long b = 0;
+		while( n > 0 ) {
+			b = a + b;
+			a = b - a;
+			n--;
+		}
+		return b;		
+	}
+	
+	
+	/**
+	 * The sequence of Fibonacci numbers.
+	 */
+	public static final Sequence FIBONACCI_SEQUENCE = //;
+	//static { FIBONACCI_SEQUENCE = 
+		new Sequence() {
+			public long get(long n) {
+				int a = 1;
+				int b = 0;
+				while( n > 0 ) {
+					b = a + b;
+					a = b - a;
+					n--;
+				}
+				return b;	
+			}
+		};	
+	//}
+	
+	/**
+	 * Returns a sequence object that produces fibonacci numbers.
+	 */
+	/*public static  Sequence fib()
+	{
+		return new Sequence() {
+			public int get(int n) {
+				return Fibonacci.get(n);
+			/*	int a = 1;
+				int b = 0;
+				while( n > 0 ) {
+					b = a + b;
+					a = b - a;
+					n--;
+				}
+				return b;
+			}* /
+		};
+	}
+	*/
+
+	/**
+	 * The sequence of Fibonacci numbers squared.
+	 */
+	public static final Sequence FIBONACCI_SQUARED =
+		Product.square(FIBONACCI_SEQUENCE);
+	
+	
+	/**
+	 * Returns a sequence object that produces the squares
+	 * of Fibonacci numbers.
+	 * @return A sequence of squared Fibonacci numbers.
+	 */
+	/*public static  Sequence fibSquared()
+	{
+		return Product.square(fib());
+		
+	}*/
+
+	
+	/**
+	 * The sequence of Fibonacci numbers cubed.
+	 */
+	public static final Sequence FIBONACCI_CUBED =
+		Product.product(FIBONACCI_SEQUENCE, FIBONACCI_SQUARED);
+	
+	/*public static  Sequence fibCubed()
+	{
+		return new Product(fib(), fibSquared());
+	}*/
+	
+	
+	/**
+	 * The sequence whose n'th element is fibonacci(n) * fibonacci(n+1).
+	 */
+	public static final Sequence FIBONACCI_PRODUCT =
+		Product.product(FIBONACCI_SEQUENCE, new Shift(FIBONACCI_SEQUENCE, 1));
+	/**
+	 * Returns a sequences who's n't element is fib(n)*fib(n+1).
+	 * Here, fib(x) is a Fibonacci number.
+	 * @return
+	 */
+	/*public static Sequence fibProd()
+	{
+		return new Product(fib(), new Shift(fib(), 1));
+	}*/
+	
+	
+	/**
+	 * The sequence whose n'th element is fibonacci(n) * fibonacci(n+2).
+	 */
+	public static final Sequence FIBONACCI_SKIP_PRODUCT =
+		Product.product(FIBONACCI_SEQUENCE, new Shift(FIBONACCI_SEQUENCE,2));
+	
+	
+	/**
+	 * Returns a sequence whose N'th element is fib(n) * fib(n+2).
+	 * /
+	public static Sequence fibSkipProd()
+	{
+		return new Product(fib(), new Shift(fib(), 2));
+	}*/
+	
+
+}
